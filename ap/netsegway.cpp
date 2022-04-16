@@ -9,9 +9,10 @@ static float diff_time = 0.010;
 static float control_input = 0.0;
 static int16_t cnt = 0;
 
-static float p_gain = 4000.0, i_gain = 2.0, d_gain = 78.0;
-float control_output = 0.0;
-
+// static float p_gain = 4000.0, i_gain = 2.0, d_gain = 78.0;
+static float p_gain = 55000.0;
+static float i_gain = 10000.0;
+static float d_gain = 30000.0;
 
 
 void controlSegway(float angle)
