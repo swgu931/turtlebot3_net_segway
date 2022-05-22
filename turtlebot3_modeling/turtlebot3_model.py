@@ -2,6 +2,7 @@
 
 import numpy as np
 import control as ctl
+import slycot
 
 # mass of the body (kg)
 M_s = 1.003 
@@ -23,7 +24,7 @@ I_2 = 0.003679
 A = np.zeros((6,6))
 B = np.zeros((6,2))
 C = np.identity(6)
-D = np.zeros((2,6))
+D = np.zeros((6,2))
 
 # A[1][4]
 num = M_s**2*d**2*g
@@ -67,16 +68,21 @@ B[5,0] = B_num_3_1/B_den_3
 B[5,1] = B_num_3_2/B_den_3
 # print(B[5,0], B[5,1])
 
-print(A)
-print(B)
-print(C)
-print(D)
+print('A = \n', A)
+print('B = \n', B)
+print('C = \n', C)
+print('D = \n', D)
+
+# eig = numpy.linalg.eig
+eigvalue, eigvector = np.linalg.eig(A)
+print('A eigenvalue : \n', eigvalue)
+print('A eigenvector : \n', eigvector)
 
 # Desing Controller
 
 # State space formation
-turtlebot3_sys = control.ss(A, B, C, D)
-print(turtlebot3_sys)
+turtlebot3_sys = ctl.ss(A, B, C, D)
+print('turtlebot3_sys : \n', turtlebot3_sys)
 
 # Q, R 
 Q = np.zeros((6,6))
@@ -86,11 +92,15 @@ Q[2,2] = 5
 Q[3,3] = 1
 Q[4,4] = 100
 Q[5,5] = 0.005
+
 R = np.identity(2)
+
+print('Q = \n', Q)
+print('R = \n', R)
 
 # K : gain, S: Ricatti equationg solution, E: Eigenvalue
 
-K, S, E = control.lqr(turtlebot3_sys , Q, R)
+K, S, E = ctl.lqr(turtlebot3_sys , Q, R)
 
 print('LQR Gain : \n', K)
 print('Solution of Ricatti eq. : \n', S)
