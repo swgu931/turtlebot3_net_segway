@@ -1,9 +1,71 @@
-#include "ros/ros.h"
-#include "std_msgs/Float64.h"
+##include "ros/ros.h"
+##include "std_msgs/Float64.h"
 
-import 
+import rclpy
+from rclpy.node import Node
+
+from std_msgs.msg import String
 
 
+class NetSegwayController(Node):
+
+    def __init__(self):
+        super().__init__('netsegway_controller')
+        self.publisher_ = self.create_publisher(String, 'topic', 10)
+        timer_period = 0.01  # seconds
+        self.i = 0
+        
+        self.subscription = self.create_subscription(
+            String,
+            'topic',
+            self.Controller_callback,
+            10)
+        self.subscription  # prevent unused variable warning
+        
+        self.cur_error = 0
+        
+        
+    def Controller_callback(self, msg):
+       
+        force_command = Calculate_control(msg)
+        
+        self.publisher_.publish('cmd_vel', force_command)
+        
+        if i % 100 == 0
+             self.get_logger().info('Publishing: "%s"' % msg.data)
+        self.i += 1
+       
+    def Calculate_control(msg):
+        #cur_error  = control_input - angle; //angle[0];
+        #integral   = integral + (cur_error * diff_time);
+        #derivative = (cur_error - pre_error) / diff_time;
+        
+        return control
+        
+def main(args=None):
+    rclpy.init(args=args)
+
+    netsegway_controller = NetSegwayController()
+
+    rclpy.spin(netsegway_controller)
+
+    # Destroy the node explicitly
+    # (optional - otherwise it will be done automatically
+    # when the garbage collector destroys the node object)
+    netsegway_controller.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+    
+    
+   
+
+
+
+
+# ==============================
 #define PWM_LIMIT  885
 
 static float cur_error = 0.0, pre_error = 0.0, integral = 0.0, derivative = 0.0;
