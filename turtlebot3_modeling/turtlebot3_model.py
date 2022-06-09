@@ -23,7 +23,7 @@ I_2 = 0.003679
 A = np.zeros((6,6))
 B = np.zeros((6,2))
 C = np.identity(6)
-D = np.zeros((2,6))
+D = np.zeros((6,2))
 
 # A[1][4]
 num = M_s**2*d**2*g
@@ -75,7 +75,7 @@ print(D)
 # Desing Controller
 
 # State space formation
-turtlebot3_sys = control.ss(A, B, C, D)
+turtlebot3_sys = ctl.ss(A, B, C, D)
 print(turtlebot3_sys)
 
 # Q, R 
@@ -90,7 +90,7 @@ R = np.identity(2)
 
 # K : gain, S: Ricatti equationg solution, E: Eigenvalue
 
-K, S, E = control.lqr(turtlebot3_sys , Q, R)
+K, S, E = ctl.lqr(turtlebot3_sys , Q, R)
 
 print('LQR Gain : \n', K)
 print('Solution of Ricatti eq. : \n', S)
