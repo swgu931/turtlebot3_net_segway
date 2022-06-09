@@ -4,11 +4,25 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from std_msgs.msg import Float32
 
+PWM_LIMIT = 885
+# PID Control Gain
 P_gain = 55000.0
 I_gain = 10000.0
 D_gain = 30000.0
 
+# LQR Control Gain
+LQR_Gain = 1
+
+# LQG_Control Gain 
+LQG_Gain = 1
+
+# H_inf Control Gain
+H_inf_Gain = 1
+
+
 Control_Topic = '/netsegway/control_input'
+State_Topic = '/angle'
+
 
 class NetSegwayController(Node):
 
@@ -19,19 +33,22 @@ class NetSegwayController(Node):
     timer_period = 0.01  # seconds
     self.i = 0
     
-    self.subscription = self.create_subscription(
+    self.state_subscription = self.create_subscription(
         Float32,
-        'topic',
+        State_Topic,
         self.Controller_callback,
         self.qos_profile)
     # self.subscription  # prevent unused variable warning
     
     self.pre_error = 0
-    self.diff_time = 0.007   # how to make decision of diff_time ???????????    
+    self.diff_time = 0.12   # second :how to make decision of diff_time ???????????    
     self.cnt = 0
     self.p_gain = 55000.0
     self.i_gain = 10000.0
     self.d_gain = 30000.0
+    self.reference_input = 0.0
+    self.derivative = 0
+    self.integral = 0
       
   def Controller_callback(self, msg):
       
@@ -45,9 +62,9 @@ class NetSegwayController(Node):
       
       
   def Calculate_pid_control(self, msg):
-    cur_error  = control_input - msg; #angle[0];
-    integral   = integral + (cur_error * diff_time);
-    derivative = (cur_error - pre_error) / diff_time;
+    cur_error  = self.reference_input - msg; #angle[0];
+    self.integral   = self.integral + (cur_error * self.diff_time);
+    self.derivative = (cur_error - pre_error) / self.diff_time;
     
     if self.cnt > 500:
       integral = 0.0
@@ -55,7 +72,7 @@ class NetSegwayController(Node):
     else:
       self.__init__cnt += 1
     
-    control_output = p_gain * cur_error + i_gain * integral + d_gain * derivative
+    control_output = p_gain * cur_error + i_gain * self.integral + d_gain * self.derivative
 
     if control_output >= PWM_LIMIT:
       control_output = PWM_LIMIT
@@ -64,26 +81,32 @@ class NetSegwayController(Node):
     else:
       print ("==================== ??? ")
     
-    pre_error = cur_error
+    self.pre_error = cur_error
       
     return control_output
     
     
     
+  
+#   LQR Gain : 
+#  [[  3.16227766   3.07453332   1.58113883   0.7096692  -11.93827561
+#    -1.74905165]
+#  [  3.16227766   3.07453332  -1.58113883  -0.7096692  -11.93827561
+#    -1.74905165]]
+
     
   def Calculate_lqr_control(self, msg):
-    control_output = 1
+    control_output = LQR_Gain * msg
     return control_output
     
-    
-    
+     
   def Calculate_lqg_control(self, msg):
-    control_output = 1
+    control_output = LQG_Gain * msg
     return control_output
       
   
   def Calculate_H_inf_control(self, msg):
-    control_output = 1
+    control_output = H_inf_Gain * msg
     return control_output    
         
   
