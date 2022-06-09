@@ -2,6 +2,7 @@
 
 import numpy as np
 import control as ctl
+import slycot
 
 # mass of the body (kg)
 M_s = 1.003 
@@ -67,16 +68,21 @@ B[5,0] = B_num_3_1/B_den_3
 B[5,1] = B_num_3_2/B_den_3
 # print(B[5,0], B[5,1])
 
-print(A)
-print(B)
-print(C)
-print(D)
+print('A = \n', A)
+print('B = \n', B)
+print('C = \n', C)
+print('D = \n', D)
+
+# eig = numpy.linalg.eig
+eigvalue, eigvector = np.linalg.eig(A)
+print('A eigenvalue : \n', eigvalue)
+print('A eigenvector : \n', eigvector)
 
 # Desing Controller
 
 # State space formation
 turtlebot3_sys = ctl.ss(A, B, C, D)
-print(turtlebot3_sys)
+print('turtlebot3_sys : \n', turtlebot3_sys)
 
 # Q, R 
 Q = np.zeros((6,6))
@@ -86,7 +92,11 @@ Q[2,2] = 5
 Q[3,3] = 1
 Q[4,4] = 100
 Q[5,5] = 0.005
+
 R = np.identity(2)
+
+print('Q = \n', Q)
+print('R = \n', R)
 
 # K : gain, S: Ricatti equationg solution, E: Eigenvalue
 
