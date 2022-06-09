@@ -1,46 +1,93 @@
-##include "ros/ros.h"
-##include "std_msgs/Float64.h"
-
 import rclpy
 from rclpy.node import Node
 
 from std_msgs.msg import String
+from std_msgs.msg import Float32
 
+P_gain = 55000.0
+I_gain = 10000.0
+D_gain = 30000.0
+
+Control_Topic = '/netsegway/control_input'
 
 class NetSegwayController(Node):
 
-    def __init__(self):
-        super().__init__('netsegway_controller')
-        self.publisher_ = self.create_publisher(String, 'topic', 10)
-        timer_period = 0.01  # seconds
-        self.i = 0
+  def __init__(self):
+    super().__init__('netsegway_controller')
+    self.qos_profile = QoSProfile(depth=10)
+    self.publisher_ = self.create_publisher(Float32, Control_Topic, self.qos_profile)
+    timer_period = 0.01  # seconds
+    self.i = 0
+    
+    self.subscription = self.create_subscription(
+        Float32,
+        'topic',
+        self.Controller_callback,
+        self.qos_profile)
+    # self.subscription  # prevent unused variable warning
+    
+    self.pre_error = 0
+    self.diff_time = 0.007   # how to make decision of diff_time ???????????    
+    self.cnt = 0
+    self.p_gain = 55000.0
+    self.i_gain = 10000.0
+    self.d_gain = 30000.0
+      
+  def Controller_callback(self, msg):
+      
+    control_command = Calculate_pid_control(msg)
+    
+    self.publisher_.publish(control_command)
+    
+    if i % 100 == 0
+          self.get_logger().info('Publishing: "%f"' % msg)
+    self.i += 1
+      
+      
+  def Calculate_pid_control(self, msg):
+    cur_error  = control_input - msg; #angle[0];
+    integral   = integral + (cur_error * diff_time);
+    derivative = (cur_error - pre_error) / diff_time;
+    
+    if self.cnt > 500:
+      integral = 0.0
+      self.cnt = 0
+    else:
+      self.__init__cnt += 1
+    
+    control_output = p_gain * cur_error + i_gain * integral + d_gain * derivative
+
+    if control_output >= PWM_LIMIT:
+      control_output = PWM_LIMIT
+    elif control_output <= (-1) * PWM_LIMIT:
+      control_output = (-1) * PWM_LIMIT
+    else:
+      print ("==================== ??? ")
+    
+    pre_error = cur_error
+      
+    return control_output
+    
+    
+    
+    
+  def Calculate_lqr_control(self, msg):
+    control_output = 1
+    return control_output
+    
+    
+    
+  def Calculate_lqg_control(self, msg):
+    control_output = 1
+    return control_output
+      
+  
+  def Calculate_H_inf_control(self, msg):
+    control_output = 1
+    return control_output    
         
-        self.subscription = self.create_subscription(
-            String,
-            'topic',
-            self.Controller_callback,
-            10)
-        self.subscription  # prevent unused variable warning
-        
-        self.cur_error = 0
-        
-        
-    def Controller_callback(self, msg):
-       
-        force_command = Calculate_control(msg)
-        
-        self.publisher_.publish('cmd_vel', force_command)
-        
-        if i % 100 == 0
-             self.get_logger().info('Publishing: "%s"' % msg.data)
-        self.i += 1
-       
-    def Calculate_control(msg):
-        #cur_error  = control_input - angle; //angle[0];
-        #integral   = integral + (cur_error * diff_time);
-        #derivative = (cur_error - pre_error) / diff_time;
-        
-        return control
+  
+
         
 def main(args=None):
     rclpy.init(args=args)
